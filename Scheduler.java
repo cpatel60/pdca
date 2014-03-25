@@ -116,13 +116,15 @@ class ParallelSocket implements Runnable {
           int taskIdStart = 0;
           int numTasks = JobFactory.getJob(fileName, className).getNumTasks();
 
-          //get a free worker
-          WorkerNode n = cluster.getFreeWorkerNode();
-          System.out.println("get worker"+n+" thread"+id);
           //notify the client
           dos.writeInt(Opcode.job_start);
           dos.flush();
 
+	for(int taskId=taskIdStart; taskId<taskIdStart+numTasks; taskId++)
+	{
+	  //get a free worker
+          WorkerNode n = cluster.getFreeWorkerNode();
+          System.out.println("get worker"+n+" thread"+id+ " taskid"+taskId);
           //assign the tasks to the worker
           Socket workerSocket = new Socket(n.addr, n.port);
           DataInputStream wis = new DataInputStream(workerSocket.getInputStream());
@@ -131,8 +133,10 @@ class ParallelSocket implements Runnable {
           wos.writeInt(Opcode.new_tasks);
           wos.writeInt(jobId);
           wos.writeUTF(className);
-          wos.writeInt(taskIdStart);
-          wos.writeInt(numTasks);
+     //     wos.writeInt(taskIdStart);
+     //     wos.writeInt(numTasks);
+		wos.writeInt(taskId);
+          wos.writeInt(1);
           wos.flush();
 
           //repeatedly process the worker's feedback
@@ -147,7 +151,7 @@ class ParallelSocket implements Runnable {
           wos.close();
           workerSocket.close();
           cluster.addFreeWorkerNode(n);
-
+	}
           //notify the client
           dos.writeInt(Opcode.job_finish);
           dos.flush();
