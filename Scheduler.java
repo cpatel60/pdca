@@ -421,14 +421,6 @@ class JobsScheduler implements Runnable {
           				wos.close();
           				workerSocket.close();
           				cluster.addFreeWorkerNode(n);
-
-					while(failNum!=0);
-
-					//notify the client
-					synchronized(dos){
-          				dos.writeInt(Opcode.job_finish);
-          				dos.flush();
-					}
 					}
 					catch (Exception e) {
 						System.out.println("///////////////////////////////////////scheduler");
@@ -444,6 +436,14 @@ class JobsScheduler implements Runnable {
 					}
 					//jobsscheduler.incNumWorkers(numWorkers);
 					jobsscheduler.removeJob(myJob, numWorkers);
+
+					while(failNum!=0);
+
+					//notify the client
+					synchronized(dos){
+          				dos.writeInt(Opcode.job_finish);
+          				dos.flush();
+					}
 				}
 
         			dis.close();
@@ -508,15 +508,22 @@ class JobsScheduler implements Runnable {
 
 				//repeatedly process the worker's feedback
           			while(wis.readInt() == Opcode.task_finish) {
+				int taskId = wis.readInt();
 				//socket.write(wis.readInt(),n.id);
-				System.out.println("/////////////////////////////////task "+wis.readInt()+" finished on worker "+n.id);
-				/*
+				System.out.println("/////////////////////////////////task "+taskId+" finished on worker "+n.id);
+				try
+				{
 				synchronized(dos)
 				{
             			dos.writeInt(Opcode.job_print);
-            			dos.writeUTF("task "+wis.readInt()+" finished on worker "+n.id);
+            			dos.writeUTF("task "+taskId+" finished on worker "+n.id);
             			dos.flush();
-				}*/
+				}
+				}
+				catch(Exception e)
+				{
+					
+				}
           			}
 
           			//disconnect and free the worker
