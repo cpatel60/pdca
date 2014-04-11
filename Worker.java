@@ -86,7 +86,7 @@ public class Worker {
           dos.flush();
 	  kill = dis.readInt();
 	  if (kill == 0) {
-		System.out.println("Job Killed");
+	//	System.out.println("Job Killed");
         	dis.close();
        	 	dos.close();
 		//System.out.println("here");
@@ -105,8 +105,8 @@ public class Worker {
         socket.close();
       }
     } catch(Exception e) {
-	System.out.println("///////////////////////////worker");
-      e.printStackTrace();
+//	System.out.println("///////////////////////////worker");
+  //    e.printStackTrace();
     }
   }
 
