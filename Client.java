@@ -75,7 +75,7 @@ public class Client {
     socket.close();
 }
 catch(Exception e){
-	System.out.println("////////////////////////////////client");
+	//System.out.println("////////////////////////////////client");
 	e.printStackTrace();
 }
   }
