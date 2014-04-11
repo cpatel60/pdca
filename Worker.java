@@ -84,14 +84,19 @@ public class Worker {
           dos.writeInt(Opcode.task_finish);
           dos.writeInt(taskId);
           dos.flush();
+	  try {
 	  kill = dis.readInt();
 	  if (kill == 0) {
-	//	System.out.println("Job Killed");
+		System.out.println("Job Killed");
         	dis.close();
        	 	dos.close();
 		//System.out.println("here");
         	socket.close();
 		break;
+	  }
+	  }
+	  catch (Exception e) {
+		System.out.println("/////////////error");
 	  }
         }
 	if(kill==0)
@@ -105,8 +110,8 @@ public class Worker {
         socket.close();
       }
     } catch(Exception e) {
-//	System.out.println("///////////////////////////worker");
-  //    e.printStackTrace();
+	System.out.println("///////////////////////////worker");
+      e.printStackTrace();
     }
   }
 
