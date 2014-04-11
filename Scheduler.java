@@ -31,7 +31,7 @@ public class Scheduler {
 		try{
       			//create a ServerSocket listening at specified port
       			ServerSocket serverSocket = new ServerSocket(schedulerPort);
-    			System.out.println( "scheduler socket started\n");
+    			//System.out.println( "scheduler socket started\n");
 			JobsScheduler jobsscheduler = new JobsScheduler();
 			new Thread(jobsscheduler).start();
    			while(true){
@@ -89,22 +89,13 @@ public class Scheduler {
 					job = RunningList.peekFirst();			
 					if(job != null)
 					{
-						System.out.println("&&&&&&&&&&&&&&&&&&Peek first: "+job.jobID);
 						if(job.jobID != myJob.jobID)
-						{
-							boolean success = RunningList.remove(job);
-							System.out.println("&&&&&&&&&&&&&&&&&&After removing first element, success "+ success);
-						}
+							RunningList.remove(job);
 						else if(RunningList.size()>1)
-						{
-							job = RunningList.remove(1);
-							System.out.println("&&&&&&&&&&&&&&&&&&After removing "+ 1+ " element");
-						}						
+							job = RunningList.remove(1);						
 						else
 							job = null;
 					}
-					if(job != null)
-						System.out.println("***********************Killing job "+job.jobID);
 				}
 			}
 			return job;
@@ -116,12 +107,12 @@ public class Scheduler {
 				if(job.failedJob == true)
 				{
 					JobsToSchedule.addFirst(job); 
-					System.out.println("Added failed job: "+job.jobID);
+				//	System.out.println("Added failed job: "+job.jobID);
 				}	
 				else
 				{	
 					JobsToSchedule.add(job); 
-					System.out.println("Added job: "+job.jobID);
+				//	System.out.println("Added job: "+job.jobID);
 				}
 			}
 		}
@@ -131,7 +122,7 @@ public class Scheduler {
 			synchronized(JobsToSchedule) {
 				if(job!=null)
 				{
-					System.out.println("Removing job: "+job.jobID);
+				//	System.out.println("Removing job: "+job.jobID);
 					JobsToSchedule.remove(job);
 				}				
 				num_workers += n;
@@ -167,7 +158,7 @@ public class Scheduler {
 							Job job = itr.next();
 							if(!job.scheduled)
 							{
-								System.out.println("Scheduling jobs. jobs to schedule = "+size+" workers available = "+numWorkers);
+							//	System.out.println("Scheduling jobs. jobs to schedule = "+size+" workers available = "+numWorkers);
 								if(numWorkers>0) 
 								{
 									all_scheduled = false;
@@ -276,7 +267,7 @@ public class Scheduler {
 
   		public void run() {
     			try{
-				System.out.println( "in thread "+id);
+				//System.out.println( "in thread "+id);
         			DataInputStream dis = new DataInputStream(socket.getInputStream());
         			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
         			int code = dis.readInt();
@@ -332,15 +323,15 @@ public class Scheduler {
 						System.out.print("");
 					}
 
-	  				System.out.println("Job scheduled "+myJob.jobID+" workers assigned: "+myJob.numWorkers);
+	  			//	System.out.println("Job scheduled "+myJob.jobID+" workers assigned: "+myJob.numWorkers);
 					numWorkers = myJob.numWorkers;
-		
-          				//notify the client
-          				dos.writeInt(Opcode.job_start);
-          				dos.flush();
+	
 					int i;
 					int tasksAssigned = numTasks / numWorkers;
 					int task_left=0, start_task=0;
+					//notify the client
+          				dos.writeInt(Opcode.job_start);
+          				dos.flush();
 					for(i=0; i<numWorkers-1; i++)
 					{
 						task_left = tasksAssigned;
@@ -364,7 +355,7 @@ public class Scheduler {
 					if(myJob.kill==false)
 					{
 						success = jobsscheduler.removeRunningList(myJob);
-						System.out.println("*****************removed job "+myJob.jobID+ "success= "+success);
+					//	System.out.println("*****************removed job "+myJob.jobID+ "success= "+success);
 						jobsscheduler.removeJob(myJob, numWorkers);
 					}
 					else
@@ -375,7 +366,7 @@ public class Scheduler {
 					
 						
 
-					System.out.println("failNum "+failNum);
+				//	System.out.println("failNum "+failNum);
 					while(failNum!=0)
 					{
 						System.out.print("");
@@ -416,7 +407,7 @@ public class Scheduler {
 			try {
 				//get a free worker
           			WorkerNode n = cluster.getFreeWorkerNode();
-          			System.out.println(task_left+" tasks assinged to worker "+n.id);
+          		//	System.out.println(task_left+" tasks assinged to worker "+n.id);
 				//assign the tasks to the worker
         			Socket workerSocket = new Socket(n.addr, n.port);
           			DataInputStream wis = new DataInputStream(workerSocket.getInputStream());
@@ -479,8 +470,8 @@ public class Scheduler {
 				}
 			}
 			catch (Exception e) {
-				System.out.println("///////////////////////////////////////scheduler");
-				e.printStackTrace();
+			//	System.out.println("///////////////////////////////////////scheduler");
+			//	e.printStackTrace();
 				Job failJob = new Job(myJob.jobID, myJob.className, task_left, start_task, true, false);
 				FaultTolerance faultcase = new FaultTolerance(failJob, dos, socket);
 				new Thread(faultcase).start();
@@ -517,12 +508,12 @@ public class Scheduler {
 	  			while(myJob.done_scheduling==false)
 					System.out.print("");
 
-	  			System.out.println("Job scheduled "+myJob.jobID);
+	  		//	System.out.println("Job scheduled "+myJob.jobID);
 				int numWorkers = myJob.numWorkers;
 				try {
 					//get a free worker
         	  			WorkerNode n = cluster.getFreeWorkerNode();
-					System.out.println(myJob.numTasks+" tasks assinged to worker "+n.id);
+			//		System.out.println(myJob.numTasks+" tasks assinged to worker "+n.id);
         	  			Socket workerSocket = new Socket(n.addr, n.port);
 	          			DataInputStream wis = new DataInputStream(workerSocket.getInputStream());
 	          			DataOutputStream wos = new DataOutputStream(workerSocket.getOutputStream());
@@ -537,7 +528,7 @@ public class Scheduler {
 					//repeatedly process the worker's feedback
 	          			while(wis.readInt() == Opcode.task_finish) {
 						int taskId = wis.readInt();
-						System.out.println("/////////////////////////////////task "+taskId+" finished on worker "+n.id);
+					//	System.out.println("/////////////////////////////////task "+taskId+" finished on worker "+n.id);
 						try
 						{
 							synchronized(dos)
@@ -563,8 +554,8 @@ public class Scheduler {
 					socket.jobsscheduler.removeJob(myJob, myJob.numWorkers);
 				}
 				catch (Exception e) {
-					System.out.println("///////////////////////////////////////failed worker");
-					e.printStackTrace();
+				//	System.out.println("///////////////////////////////////////failed worker");
+				//	e.printStackTrace();
 					fail = true;
 				}
 			}while(fail = true);
@@ -671,18 +662,6 @@ public class Scheduler {
 			done_scheduling=false;
 			kill = false;
 		}
-
-		Job(Job job) {
-			jobID = job.jobID;
-			className = job.className;
-			numTasks = job.numTasks;
-			taskIdStart = job.taskIdStart;
-			failedJob = job.failedJob;
-			killedJob = job.killedJob;
-			scheduled = job.scheduled;
-			numWorkers = job.numWorkers;
-			done_scheduling=job.done_scheduling;
-			kill = job.kill;
-		}			
+		
 	}
 }
