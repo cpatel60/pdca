@@ -76,7 +76,7 @@ public class Worker {
 
         //read the job file from shared file system
         Job job = JobFactory.getJob(fileName, className);
-
+	int kill = 1;;
         //execute the assigned tasks
         for(int taskId=taskIdStart; taskId<taskIdStart+numTasks; taskId++){
           job.task(taskId);
@@ -84,8 +84,18 @@ public class Worker {
           dos.writeInt(Opcode.task_finish);
           dos.writeInt(taskId);
           dos.flush();
+	  kill = dis.readInt();
+	  if (kill == 0) {
+		System.out.println("Job Killed");
+        	dis.close();
+       	 	dos.close();
+		//System.out.println("here");
+        	socket.close();
+		break;
+	  }
         }
-
+	if(kill==0)
+		continue;
         //disconnect
         dos.writeInt(Opcode.worker_finish);
         dos.flush();
